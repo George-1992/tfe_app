@@ -1,0 +1,64 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model accounts {
+  id         String   @id @default(uuid())
+  name       String   @default("Default Account")
+  status     String?  @default("inactive")
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  users_and_accounts users_and_accounts[]
+
+  @@index([name])
+  @@index([status])
+}
+
+model users {
+  id         String   @id @default(cuid())
+  status     String?  @default("pending")
+  email      String   @unique
+  first_name String?  @default("")
+  last_name  String?  @default("")
+  password   String?
+  provider   String?  @default("email")
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  users_and_accounts users_and_accounts[]
+
+  @@index([email])
+  @@index([status])
+  @@index([provider])
+  @@index([first_name])
+  @@index([last_name])
+}
+
+model users_and_accounts {
+  id         String   @id @default(cuid())
+  role       String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  account_id String
+  account    accounts @relation(fields: [account_id], references: [id])
+  user_id    String
+  user       users    @relation(fields: [user_id], references: [id])
+
+  @@unique([account_id, user_id])
+  @@index([account_id])
+  @@index([user_id])
+  @@index([role])
+}
