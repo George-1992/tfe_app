@@ -33,6 +33,16 @@ const SESSION_COOKIE_NAME = process.env.SESSION_COOKIE_NAME || 'aaaa';
 
 export default async function PageWrapper({ children, params, searchParams }) {
 
+    return (
+        <html>
+            <body>
+                <div>
+                    API USAGE ONLY
+                </div>
+            </body>
+        </html>
+    )
+
     // console.log({ params, searchParams });
     const pathname = params.slug && params.slug.length > 1 ? `/${params.slug.join('/')}` : params.slug[0]
     // console.log('pathname ==> ', pathname);

@@ -1,0 +1,43 @@
+{
+    "full_name": "Gor Stepanyan",
+    "email": "gor@stepanyan.me",
+    "phone": "+44111222333",
+    "is_business_quote": false,
+    "company_name": "",
+    "project_address": "0057",
+    "has_sales_rep": false,
+    "sales_rep_email": "",
+    "timeframe": "within-two-weeks",
+    "material_choice": "laminate",
+    "engineered_wood_install_type": null,
+    "lvt_install_type": null,
+    "solid_wood_install_type": null,
+    "pattern_choice": "straight-plank",
+    "tonality": 50,
+    "price_range": "mid-range",
+    "manual_price": "",
+    "rooms": [
+        {
+            "room_1_name": "kitchen",
+            "room_1_size": "15"
+        }
+    ],
+    "total_area": "",
+    "uplift_required": false,
+    "flooring_types": [],
+    "carpet_area": "",
+    "wood_area": "",
+    "subfloor_type": "concrete",
+    "has_skirting_boards": false,
+    "skirting_finish": null,
+    "other_requirements": [],
+    "is_area_cleared": false,
+    "manual_accessories": [],
+    "understands_estimate": true,
+    "agrees_to_emails": false,
+    "notes": "",
+    "utm_source": "",
+    "utm_campaign": "",
+    "utm_medium": "",
+    "submission_date": "2025-11-17T10:56:08.784Z"
+}

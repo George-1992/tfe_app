@@ -14,9 +14,11 @@ datasource db {
 }
 
 model accounts {
-  id         String   @id @default(uuid())
-  name       String   @default("Default Account")
-  status     String?  @default("inactive")
+  id     String  @id @default(uuid())
+  name   String  @default("Default Account")
+  status String? @default("inactive")
+  tokens Json?   @default("{}")
+
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
@@ -28,7 +30,7 @@ model accounts {
 
 model users {
   id         String   @id @default(cuid())
-  status     String?  @default("pending")
+  status     String?  @default("active")
   email      String   @unique
   first_name String?  @default("")
   last_name  String?  @default("")
@@ -38,6 +40,7 @@ model users {
   updated_at DateTime @updatedAt
 
   users_and_accounts users_and_accounts[]
+  tokens             tokens[]
 
   @@index([email])
   @@index([status])
@@ -62,3 +65,77 @@ model users_and_accounts {
   @@index([user_id])
   @@index([role])
 }
+
+model tokens {
+  id   String @id @default(cuid())
+  name String
+  data Json   @default("{}")
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  users      users?   @relation(fields: [usersId], references: [id])
+  usersId    String?
+
+  @@index([name])
+}
+
+model forms {
+  id                           String   @id @default(cuid())
+  full_name                    String
+  email                        String?
+  phone                        String?
+  is_business_quote            Boolean  @default(false)
+  company_name                 String?
+  project_address              String?
+  has_sales_rep                Boolean  @default(false)
+  sales_rep_email              String?
+  timeframe                    String?
+  material_choice              String?
+  engineered_wood_install_type String?
+  lvt_install_type             String?
+  solid_wood_install_type      String?
+  pattern_choice               String?
+  tonality                     String?
+  price_range                  String?
+  manual_price                 String?
+  rooms                        Json     @default("[]")
+  total_area                   String?
+  uplift_required              Boolean  @default(false)
+  flooring_types               Json     @default("[]")
+  carpet_area                  String?
+  wood_area                    String?
+  subfloor_type                String?
+  has_skirting_boards          Boolean  @default(false)
+  skirting_finish              String?
+  other_requirements           Json     @default("[]")
+  is_area_cleared              Boolean  @default(false)
+  manual_accessories           Json     @default("[]")
+  understands_estimate         Boolean  @default(true)
+  agrees_to_emails             Boolean  @default(false)
+  notes                        String?
+  utm_source                   String?
+  utm_campaign                 String?
+  utm_medium                   String?
+  submission_date              DateTime @default(now())
+
+  data       Json     @default("{}")
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+// "flooring_types": [],
+//   "carpet_area": "",
+//   "wood_area": "",
+//   "subfloor_type": "concrete",
+//   "has_skirting_boards": false,
+//   "skirting_finish": null,
+//   "other_requirements": [],
+//   "is_area_cleared": false,
+//   "manual_accessories": [],
+//   "understands_estimate": true,
+//   "agrees_to_emails": false,
+//   "notes": "",
+//   "utm_source": "",
+//   "utm_campaign": "",
+//   "utm_medium": "",
+//   "submission
