@@ -68,7 +68,7 @@ model users_and_accounts {
 
 model tokens {
   id   String @id @default(cuid())
-  name String
+  name String @unique
   data Json   @default("{}")
 
   created_at DateTime @default(now())
@@ -95,7 +95,7 @@ model forms {
   lvt_install_type             String?
   solid_wood_install_type      String?
   pattern_choice               String?
-  tonality                     String?
+  tonality                     Int?     @default(0)
   price_range                  String?
   manual_price                 String?
   rooms                        Json     @default("[]")
@@ -123,19 +123,88 @@ model forms {
   updated_at DateTime @updatedAt
 }
 
-// "flooring_types": [],
-//   "carpet_area": "",
-//   "wood_area": "",
-//   "subfloor_type": "concrete",
-//   "has_skirting_boards": false,
-//   "skirting_finish": null,
-//   "other_requirements": [],
-//   "is_area_cleared": false,
-//   "manual_accessories": [],
-//   "understands_estimate": true,
-//   "agrees_to_emails": false,
-//   "notes": "",
-//   "utm_source": "",
-//   "utm_campaign": "",
-//   "utm_medium": "",
-//   "submission
+model contacts {
+  id                String    @id @default(cuid())
+  ghl_id            String?   @unique
+  location_id       String?
+  contact_name      String?
+  first_name        String?
+  last_name         String?
+  first_name_raw    String?
+  last_name_raw     String?
+  company_name      String?
+  email             String?   @unique
+  phone             String?   @unique
+  dnd               Boolean   @default(false)
+  dnd_settings      Json?     @default("{}")
+  type              String?   @default("lead")
+  source            String?
+  assigned_to       String?
+  city              String?
+  state             String?
+  postal_code       String?
+  address1          String?
+  date_added        DateTime?
+  date_updated      DateTime?
+  date_of_birth     DateTime?
+  business_id       String?
+  tags              Json?     @default("[]")
+  followers         Json?     @default("[]")
+  country           String?
+  website           String?
+  timezone          String?
+  profile_photo     String?
+  additional_emails Json?     @default("[]")
+  custom_fields     Json?     @default("[]")
+
+  messages messages[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([ghl_id])
+  @@index([email])
+  @@index([phone])
+  @@index([location_id])
+  @@index([type])
+  @@index([date_added])
+}
+
+model messages {
+  id                       String    @id @default(cuid())
+  role                     String?   @default("user")
+  ghl_id                   String?   @unique
+  type                     String?
+  message_id               String?
+  trace_id                 String?
+  location_id              String?
+  version_id               String?
+  app_id                   String?
+  attachments              Json?     @default("[]")
+  body                     String?   @db.Text
+  content_type             String?
+  conversation_id          String?
+  date_added               DateTime?
+  direction                String?
+  message_type             String?
+  user_id                  String?
+  status                   String?
+  source                   String?
+  conversation_provider_id String?
+  timestamp                DateTime?
+  webhook_id               String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  contact_id String?
+  contact    contacts? @relation(fields: [contact_id], references: [id], onDelete: Cascade)
+
+  @@index([ghl_id])
+  @@index([contact_id])
+  @@index([conversation_id])
+  @@index([location_id])
+  @@index([direction])
+  @@index([date_added])
+  @@index([status])
+}

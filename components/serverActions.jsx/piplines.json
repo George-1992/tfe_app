@@ -1,0 +1,542 @@
+[
+    {
+        "stages": [
+            {
+                "id": "6c59a17f-08ad-45cc-b1f4-87da7188ce71",
+                "name": "New Lead",
+                "position": 0,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "222de456-cee4-46f8-ac94-7a5806d9bd84",
+                "name": "Call ASAP (Hot Lead)",
+                "position": 1,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "b1b40dcb-0858-48d2-bae1-adefc822149c",
+                "name": "Attempt 1 Made",
+                "position": 2,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "36f9c4fb-954d-408d-8894-eec54158efa2",
+                "name": "Attempt 2 Made",
+                "position": 3,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "80a2c684-20d6-4206-8a1b-eb8d000dcb6e",
+                "name": "Open Conversation",
+                "position": 4,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "d1b13176-bcc8-4e60-bcf0-d2dcf5dd4c1b",
+                "name": "Call Closer to Project Date",
+                "position": 5,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "af69fe72-83a8-420b-aaf7-f8bc8dfeead0",
+                "name": "Samples Requested",
+                "position": 6,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "7fbe5e27-1f56-436c-8f87-c7830b124a73",
+                "name": "Samples Shipped",
+                "position": 7,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "f937da07-7761-41b5-a9ea-6b3e8dd7a4e0",
+                "name": "Visit Scheduled",
+                "position": 8,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "70894698-f356-4e0e-8ab7-2f2fcca46b54",
+                "name": "Quote Requested",
+                "position": 9,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "dcc915a4-2a47-4b4e-8e44-ce2602181979",
+                "name": "Quote Sent (close)",
+                "position": 10,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "e62247b1-1356-4679-98d3-649b14803dca",
+                "name": "Vanished After Quote? Last Try!",
+                "position": 11,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "fd81b006-92d3-409d-8be9-016bfd970450",
+                "name": "Pending Deposit",
+                "position": 12,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "107afb8d-95b4-4b5f-9485-9f5b73345b82",
+                "name": "Job Scheduled",
+                "position": 13,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "e6ea1ebd-0299-4338-a488-402425955da4",
+                "name": "Product Ordered",
+                "position": 14,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "cbaccf54-6410-4d22-ac2f-a01a0a0c8cfa",
+                "name": "Invoice Sent",
+                "position": 15,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "65406158-6efb-4f31-8bca-e7168c697844",
+                "name": "Won",
+                "position": 16,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "6acdbb4c-8f92-4b28-b111-764c84e449ac",
+                "name": "Lost",
+                "position": 17,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "6174099a-284c-4488-a2e4-d6e8c2c2b6fe",
+                "name": "Vanished (3 attempts, no response)",
+                "position": 18,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "61cb9f0e-7c8b-4fc3-8d9b-8c4575af64af",
+                "name": "Material Only",
+                "position": 19,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "d029a96e-49d2-4709-a688-187f91cf1590",
+                "name": "Unqualified",
+                "position": 20,
+                "showInFunnel": true,
+                "showInPieChart": true
+            }
+        ],
+        "dateAdded": "2025-10-10T14:38:27.942Z",
+        "dateUpdated": "2025-10-14T13:44:56.325Z",
+        "name": "Full Pipeline",
+        "showInFunnel": true,
+        "showInPieChart": true,
+        "id": "jeE3ydJVSqONDnIyWH7o"
+    },
+    {
+        "stages": [
+            {
+                "id": "975e8bbc-94d0-497b-b7c6-5854231b662d",
+                "name": "Samples Requested",
+                "position": 0,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "f2514509-860c-46d2-b9d2-d3894c10e864",
+                "name": "Samples Shipped",
+                "position": 1,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "e31d64e4-9d61-4e78-a0c6-38e931d9cb5b",
+                "name": "Visit Scheduled",
+                "position": 2,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "6177c6b7-55bb-4b85-9caf-fa08a2bf51be",
+                "name": "Quote Requested",
+                "position": 3,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "a4d6eacb-c1b2-4f90-82f6-badc6202d1a8",
+                "name": "Quote Sent (Close)",
+                "position": 4,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "2db4201f-c189-428b-8ca8-577d2cce52dd",
+                "name": "Deposit Requested",
+                "position": 5,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "52eea851-e199-4817-b972-86e8b9ba836c",
+                "name": "Pending Deposit",
+                "position": 6,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "2d047611-71ab-4488-b9db-a0d67f04902d",
+                "name": "Job Scheduled",
+                "position": 7,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "58ecdb99-8582-4a5c-a384-ddc94e25951b",
+                "name": "Product Ordered",
+                "position": 8,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "db7a1141-a5b1-4349-9494-83613bff4621",
+                "name": "Awaiting Invoice",
+                "position": 9,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "b21f955a-40b6-4ffd-8dda-89b9b8030185",
+                "name": "Invoice Sent",
+                "position": 10,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "86746824-c9bf-487b-bb3d-b54017babe2a",
+                "name": "Won",
+                "position": 11,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "bfe6e3e6-fadd-4241-81c6-f5e2163a1368",
+                "name": "Lost",
+                "position": 12,
+                "showInFunnel": true,
+                "showInPieChart": true
+            }
+        ],
+        "dateAdded": "2025-08-11T17:54:16.680Z",
+        "dateUpdated": "2025-08-11T17:54:16.680Z",
+        "name": "Operations Pipeline",
+        "showInFunnel": true,
+        "showInPieChart": true,
+        "id": "00rI09dxYZpegEFBMsNd"
+    },
+    {
+        "stages": [
+            {
+                "id": "6618cd8b-514d-4b0f-b863-000113b5a769",
+                "name": "New lead",
+                "position": 0,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "af708212-0978-40e4-9bd4-60f07aeb03dd",
+                "name": "Call ASAP (Hot Lead)",
+                "position": 1,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "3f49d73a-6127-47e5-936a-5f995e36db7e",
+                "name": "Attempt 1 Made",
+                "position": 2,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "e022155e-64c2-40af-9f4b-a08578a6a53a",
+                "name": "Attempt 2 Made",
+                "position": 3,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "7ce1203e-9dad-4cfa-9e48-cac58e6dc846",
+                "name": "Open Conversation",
+                "position": 4,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "b9602bbd-f5c9-4d22-ba94-b6a8a2fa20ea",
+                "name": "Call Closer to Project Date",
+                "position": 5,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "7b8738f3-7f8f-47c3-9012-1cd48520cc61",
+                "name": "Samples Requested",
+                "position": 6,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "42bee997-e9b9-4956-8b18-75cb8b73371d",
+                "name": "Samples Shipped",
+                "position": 7,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "c00e9b6e-1299-42a5-8906-92d515dd4f42",
+                "name": "Site Visit Scheduled",
+                "position": 8,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "3e7fc257-f443-4164-892c-6953d2eeab61",
+                "name": "Quote Requested",
+                "position": 9,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "17877870-8b37-4f3d-b2c4-cb50b274f1a7",
+                "name": "Quote Sent (Close)",
+                "position": 10,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "6014001a-73d0-48f6-ad53-4afae62ce213",
+                "name": "Deposit Requested",
+                "position": 11,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "be2771ab-cef5-426c-89cb-817c2bfb8ee8",
+                "name": "Pending Deposit",
+                "position": 12,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "6f03aeaf-ff1b-4f46-ab73-d8311c5a756e",
+                "name": "Job Scheduled",
+                "position": 13,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "a8bef70e-67b4-478a-9801-dda55e4851fa",
+                "name": "Won",
+                "position": 14,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "6e39dbdb-c42c-4f43-b63d-b1fa00e335f7",
+                "name": "Material Only",
+                "position": 15,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "7fe7e22e-ef79-4cab-8ec1-c10105ec77ad",
+                "name": "DeGen Department",
+                "position": 16,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "ea0f5efe-14d2-4c9b-b376-5e15cac4a9f9",
+                "name": "Vanished (3 contacts made and no response)",
+                "position": 17,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "fe55951f-1b8a-4fa4-9e63-a15753f59210",
+                "name": "Unqualified",
+                "position": 18,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "36ccc4b3-fcb5-446e-9791-79d4872240e5",
+                "name": "Lost",
+                "position": 19,
+                "showInFunnel": true,
+                "showInPieChart": true
+            }
+        ],
+        "dateAdded": "2025-04-16T15:04:54.403Z",
+        "dateUpdated": "2025-10-03T16:45:30.700Z",
+        "name": "Pre-Sales Pipelines",
+        "showInFunnel": true,
+        "showInPieChart": true,
+        "id": "bBJ5trTbzuAPR2I5ByaZ"
+    },
+    {
+        "stages": [
+            {
+                "id": "119ab7e6-349f-4b84-a384-f611c29bb6bb",
+                "name": "Requested Samples",
+                "position": 0,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "a5c0daa0-5322-43d5-a364-6b343919175b",
+                "name": "Visit Scheduled",
+                "position": 1,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "be1a7043-cc84-4376-84f1-a4450b4f1829",
+                "name": "Quote Requested",
+                "position": 2,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "6300fb30-c9c1-4c14-8d82-183cf63a2e2a",
+                "name": "Quote Sent (close)",
+                "position": 3,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "b02cdd8d-5ab6-4473-afdd-779961f537b4",
+                "name": "Deposit Requested",
+                "position": 4,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "8e9ed3e8-ca58-4a8b-b82d-019620bbe255",
+                "name": "Pending Deposit",
+                "position": 5,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "4720dccf-a2bb-487a-bcec-3febb8e13c0c",
+                "name": "Job Scheduled",
+                "position": 6,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "1f288236-f484-4ef7-904e-f56f949bac1f",
+                "name": "Product Ordered",
+                "position": 7,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "e8a98ebd-c226-44d2-871c-3d1ceeb5dcd8",
+                "name": "Awaiting Invoice",
+                "position": 8,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "e50c5933-5410-4828-b8b3-3bd0d6d97bde",
+                "name": "Invoice Sent",
+                "position": 9,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "17725a57-62eb-4332-a103-220d6f5526ac",
+                "name": "Won",
+                "position": 10,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "ae88a493-fad4-4512-8695-e672a85ef6ee",
+                "name": "Lost",
+                "position": 11,
+                "showInFunnel": true,
+                "showInPieChart": true
+            }
+        ],
+        "dateAdded": "2025-06-23T16:27:18.454Z",
+        "dateUpdated": "2025-09-01T12:26:38.647Z",
+        "name": "Sales Pipeline",
+        "showInFunnel": true,
+        "showInPieChart": true,
+        "id": "BpoUXn4neuwYWK1yLzsa"
+    },
+    {
+        "stages": [
+            {
+                "id": "e1eca1c8-5c8f-4355-b7e2-8a8172552f3d",
+                "name": "Material Only",
+                "position": 0,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "737a8735-59c4-4ed3-b63a-3e2449527276",
+                "name": "Unqualified",
+                "position": 1,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "5bf3ae68-a9d4-4aa8-b6e0-d7ed074c8214",
+                "name": "Vanished (3 attempts made)",
+                "position": 2,
+                "showInFunnel": true,
+                "showInPieChart": true
+            },
+            {
+                "id": "cca2e053-830b-4a66-885a-7bd064d73c76",
+                "name": "Lost",
+                "position": 3,
+                "showInFunnel": true,
+                "showInPieChart": true
+            }
+        ],
+        "dateAdded": "2025-06-23T14:31:34.986Z",
+        "dateUpdated": "2025-08-11T18:37:59.448Z",
+        "name": "Scrap",
+        "showInFunnel": true,
+        "showInPieChart": true,
+        "id": "3oY7LwexwBkbSByr44sN"
+    }
+]

@@ -1,13 +1,11 @@
 'use server';
 
-import { fetchFromOpenAI, processMessages } from "@/components/aiAgent/functions/helper";
-import { getConversations, ghlCreateContact, ghlGetContacts, ghlGetMessages, ghlGetTokens } from "@/services/ghl";
+import aiAssistant from "@/services/aiAssistant/as";
+import { ghlGetContacts, ghlGetTokens } from "@/services/ghl";
 import Prisma from "@/services/prisma";
-import { camelToKebab } from "@/utils/data";
 
 const { NextResponse } = require("next/server");
 
-const LOCATION_ID = process.env.GHL_LOCATION_ID;
 
 
 export const handleApiRequest = async (req, res) => {
@@ -150,164 +148,14 @@ export const handleApiPostRequest = async (req, res) => {
             return NextResponse.json(resObj);
         }
 
-        // get ghl tokens
-        const ghlTokens = await ghlGetTokens();
-        if (!ghlTokens) {
-            resObj.message = 'GHL tokens not found';
-            return NextResponse.json(resObj);
-        }
-
-
-        const psqlData = camelToKebab(reqData);
-        if (itsFor === 'formSubmit') {
-            let existing = null;
-            let ghlContactsRes = null;
-            let ghlConversationsRes = null;
-            let ghlMessagesRes = null;
-
-            let contact = null;
-            let conversation = null;
-
-            const messages = [];
-
-            // check if already exists based on email or phone
-            existing = await Prisma.forms.findFirst({
-                where: {
-                    OR: [
-                        { email: reqData.email },
-                        { phone: reqData.phone }
-                    ]
-                }
-            });
-
-
-            // if contact doest exist create new both in GHL and PSQL
-            if (!existing) {
-
-
-            }
-
-
-
-            console.log('existing: ', existing);
-            resObj.data = existing;
-            return NextResponse.json(resObj);
-
-
-
-            if (existing) {
-                resObj.message = 'Form data already exists';
-                // resObj.success = true;
-                // resObj.data = existing;
-                // return NextResponse.json(resObj);
-            } else {
-                // create form data 
-                resObj.data = await Prisma.forms.create({
-                    data: psqlData,
-                });
-            }
-
-
-            // first check if the contact exists in GHL based on email or phone
-            ghlContactsRes = await ghlGetContacts({
-                tokens: ghlTokens,
-                options: {
-                    query: `${reqData.email}`,
-                    limit: 1,
-                }
-            });
-            if (ghlContactsRes.success && ghlContactsRes.data?.contacts && ghlContactsRes.data.contacts.length > 0) {
-                contact = ghlContactsRes.data.contacts[0];
-            }
-            // console.log('contact: ', contact);
-
-
-
-            if (!contact) {
-                ghlContactsRes = await ghlCreateContact({
-                    tokens: ghlTokens,
-                    contactData: {
-                        name: reqData.full_name ? reqData.full_name.split(' ')[0] : '',
-                        email: reqData.email || '',
-                        phone: reqData.phone || '',
-                    },
-                });
-                if (ghlContactsRes.success && ghlContactsRes.data?.contact) {
-                    contact = ghlContactsRes.data.contact;
-                } else {
-                    resObj.message = 'Error creating contact in GHL';
-                    return NextResponse.json(resObj);
-                }
-            }
-
-
-            // get conversation messages
-            if (contact) {
-                ghlConversationsRes = await getConversations({
-                    tokens: ghlTokens,
-                    locationId: LOCATION_ID,
-                    query: {
-                        contactId: contact.id,
-                    },
-                    limit: 10,
-                });
-                if (ghlConversationsRes.success && ghlConversationsRes.data?.conversations && ghlConversationsRes.data.conversations.length > 0) {
-                    conversation = ghlConversationsRes.data.conversations[0];
-                } else {
-                    // no need to create conversation here
-                    // as sending message will create if not exists
-                }
-            }
-
-
-            // if convertsation exists get the messages
-            // not possible to get messages overall
-            if (conversation) {
-                // // console.log('conversation: ', conversation);
-                // ghlMessagesRes = await ghlGetMessages({
-                //     tokens: ghlTokens,
-                //     locationId: LOCATION_ID,
-                //     query: { conversationId: conversation.id },
-                //     options: {
-                //         limit: 10,
-                //     },
-                // });
-            }
-            resObj = ghlMessagesRes;
-
-            // // if contact exists get the messages
-            // if (ghlContactsRes.data?.contacts && ghlContactsRes.data.contacts.length > 0) {
-            //     const contact = ghlContactsRes.data.contacts[0];
-            //     // fetch messages
-            //     ghlMessagesRes = await ghlGetMessages({
-            //         tokens: ghlTokens,
-            //         contact: contact,
-            //         options: {},
-            //     });
-            // }
-            // resObj = ghlMessagesRes;
-
-
-
-            // make AI request
-            // const messages = [
-            //     {
-            //         role: 'user',
-            //         content: `do you support my address ${reqData.project_address} ?`
-            //     },
-            // ]
-            // const aiResponse = await processMessages(messages);
-            // console.log('aiResponse.text: ', aiResponse.text);
-
-            // resObj.success = true;
-            // resObj.message = 'Form data saved successfully';
-            // resObj.data = aiResponse
-
-        }
-
+        resObj = await aiAssistant({
+            itsFor,
+            data: reqData,
+        });
 
 
         return NextResponse.json(resObj);
+        
     } catch (error) {
         console.error(error);
         resObj.message = error.message || 'An error occurred';

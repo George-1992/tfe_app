@@ -1,6 +1,7 @@
 
 import fs from 'fs';
 import { HighLevel, LogLevel } from '@gohighlevel/api-client';
+import Prisma from '@/services/prisma';
 
 const TOKENS = {}
 
@@ -18,6 +19,7 @@ const ghlConfig = {
     code: process.env.GHL_AUTH_CODE,
     clientId: process.env.GHL_APP_CLIENT_ID,
     clientSecret: process.env.GHL_APP_CLIENT_SECRET,
+    version: '2021-07-28',
     scope: [
         "businesses.readonly",
         "businesses.write",
@@ -92,8 +94,8 @@ const ghlConfig = {
         // "oauth.write",
         // "oauth.readonly",
 
-        // "opportunities.readonly",
-        // "opportunities.write",
+        "opportunities.readonly",
+        "opportunities.write",
 
         // "payments/orders.readonly",
         // "payments/orders.write",
@@ -240,7 +242,7 @@ const test = async () => {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${GHL_API_KEY}`,
-                'Version': '2021-07-28',
+                'Version': ghlConfig.version,
                 'Content-Type': 'application/json',
                 // 'X-Location-Id': LOCATION_ID  // Alternative header
             },
@@ -345,20 +347,33 @@ const getAccessToken = async (code = '') => {
     }
 }
 // getAccessToken();
-const refresToken = async () => {
+export const ghlRefreshToken = async ({ tokens }) => {
+    let resObj = {
+        success: false,
+        message: '',
+        data: null,
+    }
     try {
-        const tokenDetails = TOKENS;
+        // const tokenDetails = TOKENS;
         // console.log('tokenDetails: ', tokenDetails);
         const token = await ghl.oauth.refreshToken(
-            tokenDetails.refresh_token,
+            tokens.refresh_token,
             ghlConfig.clientId,
             ghlConfig.clientSecret,
+            // 'access_token',
             'refresh_token',
-            tokenDetails.userType
+            tokens.userType
         );
 
+        resObj.success = true;
+        resObj.data = token;
+        resObj.message = 'Token refreshed successfully';
+        return resObj;
+
     } catch (error) {
-        console.error('rfeshToken Error:', error.message);
+        // console.error('rfeshToken Error:', error.message);
+        resObj.message = error.message || 'An error occurred';
+        return resObj;
     }
 };
 
@@ -521,16 +536,48 @@ const setGhlSession = async ({
 
     try {
 
+        let _tokens = tokens;
+        // console.log('setGhlSession >>>>  _tokens: ', _tokens);
+
         // console.log('getAuthorizationUrl: ', getAuthorizationUrl());
-        // console.log('getAccessToken: ', getAccessToken('666520d227249bf33cb0ea5edcf5f857f3fc79e6'));
+        // console.log('getAccessToken: ', getAccessToken('805113861a8785adf6f8696295f6b4a11ba6f779'));
 
 
-        ghl.getSessionStorage().setSession(locationId, tokens);
+
+        const ghlSessionStorage = ghl.getSessionStorage();
+        const expiryTimestamp = ghlSessionStorage.calculateExpireAt();
+
+        // if less then 30 minutes left, refresh the token
+        const isExpiringSoon = (expiryTimestamp - Date.now()) < (30 * 60 * 1000);
+        // console.log('isExpiringSoon: ', isExpiringSoon);
+        if (isExpiringSoon) {
+            const newTokensRes = await ghlRefreshToken({ tokens: _tokens });
+            const newTokens = newTokensRes.success ? newTokensRes.data : null;
+            console.log('setGhlSession >>>>  tokens refreshed: ', newTokens ? true : null);
+            // console.log(newTokens);
+
+            // update in DB
+            const updatedTokens = await Prisma.tokens.update({
+                where: { name: 'ghl' },
+                data: {
+                    data: newTokens
+                }
+            })
+            if (updatedTokens) {
+                console.log('setGhlSession >>>>  new tokens saved to DB');
+                _tokens = newTokens;
+            }
+        }
+
+        ghlSessionStorage.setSession(locationId, _tokens);
+
+
     } catch (error) {
         console.error('Error setting GHL token:', error.message);
     }
 
 };
+
 export const ghlGetTokens = async () => {
     try {
         const ghlTokens = await Prisma.tokens.findFirst({
@@ -547,7 +594,10 @@ export const ghlGetTokens = async () => {
 export const ghlGetContacts = async ({
     tokens = TOKENS,
     locationId = LOCATION_ID,
-    options = {}
+    options = {
+        query: '',
+        limit: 10,
+    }
 }) => {
     let resObj = {
         success: false,
@@ -735,17 +785,17 @@ export const ghlsendMessages = async ({
         await setGhlSession({ tokens, locationId });
 
 
-        const toSendData = {
-            locationId: locationId,
-            type: 'SMS',
-            status: 'delivered',
-            contactId: contact.id,
-            message: 'Hello from TFE AI assistant - API SMS test!',
-            // fromNumber: '+447700137103',
-            // toNumber: contact.phone,
-            // threadId: 'thread123',
-        }
-        // console.log('toSendData: ', toSendData);
+        // const toSendData = {
+        //     locationId: locationId,
+        //     type: 'SMS',
+        //     status: 'delivered',
+        //     contactId: contact.id,
+        //     message: 'Hello from TFE AI assistant - API SMS test!',
+        //     // fromNumber: '+447700137103',
+        //     // toNumber: contact.phone,
+        //     // threadId: 'thread123',
+        // }
+        // // console.log('toSendData: ', toSendData);
 
         const response = await ghl.conversations.sendANewMessage(message);
 
@@ -762,3 +812,656 @@ export const ghlsendMessages = async ({
         return resObj;
     }
 }
+export const ghlGetPipelines = async ({
+    tokens = TOKENS,
+    locationId = LOCATION_ID,
+}) => {
+    let resObj = {
+        success: false,
+        warning: false,
+        message: '',
+        data: null,
+    }
+    try {
+        await setGhlSession({ tokens, locationId });
+        const response = await ghl.opportunities.getPipelines({
+            locationId: locationId,
+        });
+        // console.log('ghlGetPipelines response: ', response);
+        resObj.success = true;
+        resObj.message = 'Pipelines fetched successfully';
+        resObj.data = response?.pipelines || response?.meta || response;
+        return resObj;
+    } catch (error) {
+        console.error('Error fetching GHL pipelines:', error?.message || error);
+        resObj = handleErorr(error);
+        return resObj;
+    }
+};
+
+// opportunities
+export const ghlGetOpportunities = async ({
+    tokens = TOKENS,
+    locationId = LOCATION_ID,
+    query = {},
+}) => {
+    let resObj = {
+        success: false,
+        warning: false,
+        message: '',
+        data: null,
+    }
+    try {
+        if (!tokens) {
+            resObj.message = 'GHL tokens not provided';
+            return resObj;
+        }
+        if (!locationId) {
+            resObj.message = 'Location ID not provided';
+            return resObj;
+        }
+
+        // if query is not provided send error
+        if (!query) {
+            resObj.message = 'Query  is required';
+            return resObj;
+        }
+
+        await setGhlSession({ tokens, locationId });
+
+        let d = {
+            locationId: locationId,
+            q: query?.q || '',
+        };
+
+        if (query?.contact_id) {
+            d.contactId = query.contact_id;
+            // delete d.q;
+        }
+
+        const response = await ghl.opportunities.searchOpportunity(d);
+
+
+        console.log('======= TOOL ghlGetOpportunities response: ');
+        console.log('response: ', response);
+
+
+        resObj.success = true;
+        resObj.message = 'Opportunities fetched successfully';
+        resObj.data = response?.opportunities || response?.meta || response;
+        return resObj;
+    } catch (error) {
+        console.error('Error fetching GHL opportunities:', error?.message || error);
+        resObj = handleErorr(error);
+        return resObj;
+    }
+};
+export const ghlCreateOpportunity = async ({
+    tokens = null,
+    locationId = LOCATION_ID,
+    data = {
+        locationId: '',
+        pipelineId: '',
+        name: '',
+        pipelineStageId: '',
+        status: '',
+        contactId: '',
+        monetaryValue: 0,
+    },
+}) => {
+    let resObj = {
+        success: false,
+        warning: false,
+        message: '',
+        data: null,
+    }
+    try {
+
+        if (!tokens) {
+            resObj.message = 'GHL tokens not provided';
+            return resObj;
+        }
+        if (!locationId) {
+            resObj.message = 'Location ID not provided';
+            return resObj;
+        }
+
+        await setGhlSession({ tokens, locationId });
+        const sample = {
+            'pipelineId': 'VDm7RPYC2GLUvdpKmBfC',
+            'locationId': 've9EPM428h8vShlRW1KT',
+            'name': 'First Opps',
+            'pipelineStageId': '7915dedc-8f18-44d5-8bc3-77c04e994a10',
+            'status': 'open',
+            'contactId': 'mTkSCb1UBjb5tk4OvB69',
+            'monetaryValue': 220,
+            'assignedTo': '082goXVW3lIExEQPOnd3',
+            'customFields': [
+                {
+                    'id': '6dvNaf7VhkQ9snc5vnjJ',
+                    'key': 'my_custom_field',
+                    'field_value': '9039160788'
+                },
+                {
+                    'id': '6dvNaf7VhkQ9snc5vnjJ',
+                    'key': 'my_custom_field',
+                    'field_value': [
+                        'test',
+                        'test2'
+                    ]
+                },
+                {
+                    'id': '6dvNaf7VhkQ9snc5vnjJ',
+                    'key': 'my_custom_field',
+                    'field_value': {}
+                }
+            ]
+        };
+        const response = await ghl.opportunities.createOpportunity({
+            locationId: locationId,
+            ...data
+        });
+        // console.log('ghlCreateOpportunity response: ', response);
+        resObj.success = true;
+        resObj.message = 'Opportunity created successfully';
+        resObj.data = response?.opportunity || response?.meta || response;
+        return resObj;
+    } catch (error) {
+        console.error('Error creating GHL opportunity:', error?.message || error);
+        resObj = handleErorr(error);
+        return resObj;
+    }
+};
+export const ghlUpdateOpportunity = async ({
+    tokens = null,
+    locationId = LOCATION_ID,
+    opportunityId = '',
+    data = {},
+}) => {
+    let resObj = {
+        success: false,
+        warning: false,
+        message: '',
+        data: null,
+    }
+    try {
+        if (!tokens) {
+            resObj.message = 'GHL tokens not provided';
+            return resObj;
+        }
+        if (!locationId) {
+            resObj.message = 'Location ID not provided';
+            return resObj;
+        }
+        if (!opportunityId) {
+            resObj.message = 'Opportunity ID not provided';
+            return resObj;
+        }
+        await setGhlSession({ tokens, locationId });
+
+        const response = await ghl.opportunities.upsertOpportunity(
+            { ...data }
+            // {
+            //     id: opportunityId,
+            //     status: 'open',
+            //     name: 'aaa - Gor Stepanyan - laminate project SE2',
+            //     locationId: locationId,
+            //     contactId: "qS7Llousmgrb1VxNQ6Rn",
+            // }
+        )
+
+
+        // const response = await ghl.opportunities.updateOpportunity(
+        //     {
+        //         id: opportunityId,
+        //         // ...opportunityData
+        //     },
+        //     {
+        //         ...opportunityData,
+        //         locationId: locationId,
+        //     }
+        // ); 
+
+        // console.log('ghlUpdateOpportunity response: ', response);
+        resObj.success = true;
+        resObj.message = 'Opportunity updated successfully';
+        resObj.data = response?.opportunity || response?.meta || response;
+        return resObj;
+
+    } catch (error) {
+        console.error('Error updating GHL opportunity:', error?.message || error);
+        resObj = handleErorr(error);
+        return resObj;
+    }
+};
+export const ghlDeleteOpportunity = async ({
+    tokens = null,
+    locationId = LOCATION_ID,
+    opportunityId = '',
+}) => {
+    let resObj = {
+        success: false,
+        warning: false,
+        message: '',
+        data: null,
+    }
+    try {
+        if (!tokens) {
+            resObj.message = 'GHL tokens not provided';
+            return resObj;
+        }
+        if (!locationId) {
+            resObj.message = 'Location ID not provided';
+            return resObj;
+        }
+        if (!opportunityId) {
+            resObj.message = 'Opportunity ID not provided';
+            return resObj;
+        }
+        await setGhlSession({ tokens, locationId });
+
+        // ======================
+        // DOESNT WORK AS EXPECTED
+        // ======================
+
+
+
+        // const response = await ghl.opportunities.deleteOpportunity({
+        //     // locationId: locationId,
+        //     id: opportunityId,
+        // });
+
+        // https request as deleteOpportunity seems broken
+        const responseRaw = await fetch(`https://services.leadconnectorhq.com/opportunities/${opportunityId}?locationId=${locationId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${tokens.access_token}`,
+                'Version': ghlConfig.version,
+                'Content-Type': 'application/json',
+            },
+        });
+
+        const response = await responseRaw.json();
+        if (response.success) {
+            resObj.success = true;
+            resObj.message = 'Opportunity deleted successfully';
+            resObj.data = response;
+        } else {
+            resObj.success = false;
+            resObj.message = `Failed to delete opportunity: ${response.message || 'Unknown error'}`;
+            resObj.data = response;
+        }
+
+
+        return resObj;
+
+    } catch (error) {
+        console.error('Error deleting GHL opportunity:', error?.message || error);
+        console.error('Full error:', error);
+        resObj = handleErorr(error);
+        return resObj;
+    }
+};
+
+// calendars
+export const ghlGetCalendarGroups = async ({
+    tokens = TOKENS,
+    locationId = LOCATION_ID,
+}) => {
+    let resObj = {
+        success: false,
+        warning: false,
+        message: '',
+        data: null,
+    }
+    try {
+        if (!tokens) {
+            resObj.message = 'GHL tokens not provided';
+            return resObj;
+        }
+        if (!locationId) {
+            resObj.message = 'Location ID not provided';
+            return resObj;
+        }
+
+        await setGhlSession({ tokens, locationId });
+        const response = await ghl.calendars.getGroups({
+            locationId: locationId,
+        });
+
+        // console.log('getCalendars response: ', response);
+        resObj.success = true;
+        resObj.message = 'Calendar groups fetched successfully';
+        resObj.data = response?.calendars || response?.meta || response;
+        return resObj;
+
+    } catch (error) {
+        console.error('Error fetching GHL calendar groups:', error?.message || error);
+        resObj = handleErorr(error);
+        return resObj;
+    }
+};
+export const ghlGetCalendars = async ({
+    tokens = TOKENS,
+    locationId = LOCATION_ID,
+}) => {
+    let resObj = {
+        success: false,
+        warning: false,
+        message: '',
+        data: null,
+    }
+    try {
+
+        if (!tokens) {
+            resObj.message = 'GHL tokens not provided';
+            return resObj;
+        }
+        if (!locationId) {
+            resObj.message = 'Location ID not provided';
+            return resObj;
+        }
+
+        await setGhlSession({ tokens, locationId });
+        const response = await ghl.calendars.getCalendars({
+            locationId: locationId,
+        });
+
+        // console.log('getCalendars response: ', response);
+        resObj.success = true;
+        resObj.message = 'Calendars fetched successfully';
+        resObj.data = response?.calendars || response?.meta || response;
+        return resObj;
+    } catch (error) {
+        console.error('Error fetching GHL calendars:', error?.message || error);
+        resObj = handleErorr(error);
+        return resObj;
+    }
+};
+export const ghlGetCalendarEvents = async ({
+    tokens = TOKENS,
+    locationId = LOCATION_ID,
+    data = {
+        locationId: '',
+        calendarId: '',
+        startTime: 0,
+        endTime: 0,
+    },
+}) => {
+    let resObj = {
+        success: false,
+        warning: false,
+        message: '',
+        data: null,
+    }
+    try {
+
+        if (!tokens) {
+            resObj.message = 'GHL tokens not provided';
+            return resObj;
+        }
+        if (!locationId) {
+            resObj.message = 'Location ID not provided';
+            return resObj;
+        }
+
+        await setGhlSession({ tokens, locationId });
+
+        const dod = { ...data }
+        if (!dod.locationId && locationId) {
+            dod.locationId = locationId;
+        }
+        const response = await ghl.calendars.getCalendarEvents(dod);
+
+
+        // console.log('getCalendars response: ', response);
+        resObj.success = true;
+        resObj.message = 'Calendars fetched successfully';
+        resObj.data = response?.calendars || response?.meta || response;
+        return resObj;
+    } catch (error) {
+        console.error('Error fetching GHL calendars:', error?.message || error);
+        resObj = handleErorr(error);
+        return resObj;
+    }
+};
+export const ghlGetCalendarSlots = async ({
+    tokens = TOKENS,
+    locationId = LOCATION_ID,
+    data = {
+        calendarId: '',
+        startTime: 0,
+        endTime: 0,
+    },
+}) => {
+    let resObj = {
+        success: false,
+        warning: false,
+        message: '',
+        data: {
+            calendarId: '',
+            startTime: 0,
+            endTime: 0,
+        },
+    }
+    try {
+
+        if (!tokens) {
+            resObj.message = 'GHL tokens not provided';
+            return resObj;
+        }
+        if (!locationId) {
+            resObj.message = 'Location ID not provided';
+            return resObj;
+        }
+
+        await setGhlSession({ tokens, locationId });
+        // console.log('ghlGetCalendarSlots data: ', data);
+
+        // const response = await ghl.opportunities.getPipelines({
+        //     locationId: locationId,
+        // });
+
+        // const response = await ghl.calendars.getBlockedSlots({
+        //     locationId: locationId,
+        //     ...data,
+        // });
+
+        // const response = await ghl.calendars.getSlots({
+        //     ...data,
+        // });
+
+
+        let config = {
+            method: 'GET',
+            maxBodyLength: Infinity,
+            url: 'https://services.leadconnectorhq.com/calendars/MpnLxyw9hVCScWIkPMJN/free-slots',
+            headers: {
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${tokens.access_token}`
+            }
+        };
+
+        config.url += `?`;
+        // config.url += `&locationId=${data.locationId}`;
+        config.url += `&startDate=${data.startTime}`;
+        config.url += `&endDate=${data.endTime}`;
+
+        const responseRaw = await fetch(config.url, config);
+        const response = await responseRaw.json();
+        // console.log('ghlGetCalendarSlots response: ', response);
+
+
+        const keys = Object.keys(response || {});
+
+        if (keys.length === 1 && keys[0] === 'traceId') {
+            resObj.message = 'No available slots found';
+        } else {
+            resObj.message = 'Calendars fetched successfully';
+        }
+
+
+        resObj.success = true;
+        resObj.data = response;
+
+
+        return resObj;
+
+    } catch (error) {
+        console.error('Error fetching GHL calendars:', error?.message || error);
+        resObj = handleErorr(error);
+        return resObj;
+    }
+};
+export const ghlCreateAppointment = async ({
+    tokens = TOKENS,
+    locationId = LOCATION_ID,
+    data = {
+        locationId: '',
+        contactId: '',
+        calendarId: '',
+        description: '',
+        title: '',
+        description: '',
+        startTime: '',
+        endTime: '',
+    },
+}) => {
+    let resObj = {
+        success: false,
+        warning: false,
+        message: '',
+        data: null,
+    }
+    try {
+
+        if (!tokens) {
+            resObj.message = 'GHL tokens not provided';
+            return resObj;
+        }
+        if (!locationId) {
+            resObj.message = 'Location ID not provided';
+            return resObj;
+        }
+        await setGhlSession({ tokens, locationId });
+        const response = await ghl.calendars.createAppointment({
+            ...data,
+            locationId: locationId,
+        });
+
+        // console.log('createCalendarEvent response: ', response);
+        resObj.success = true;
+        resObj.message = 'Calendar event created successfully';
+        resObj.data = response?.event || response?.meta || response;
+        return resObj;
+    } catch (error) {
+        console.error('Error creating GHL calendar event:', error?.message || error);
+        resObj = handleErorr(error);
+        return resObj;
+    }
+};
+export const ghlUpdateAppointment = async ({
+    tokens = TOKENS,
+    locationId = LOCATION_ID,
+    appointmentId = '',
+    data = {
+        description: '',
+        title: '',
+        description: '',
+        startTime: '',
+        endTime: '',
+    },
+}) => {
+    let resObj = {
+        success: false,
+        warning: false,
+        message: '',
+        data: null,
+    }
+    try {
+        if (!tokens) {
+            resObj.message = 'GHL tokens not provided';
+            return resObj;
+        }
+        if (!locationId) {
+            resObj.message = 'Location ID not provided';
+            return resObj;
+        }
+        if (!appointmentId) {
+            resObj.message = 'Appointment ID not provided';
+            return resObj;
+        }
+        await setGhlSession({ tokens, locationId });
+        const response = await ghl.calendars.editAppointment(
+            {
+                eventId: appointmentId,
+            },
+            {
+                ...data,
+                locationId: locationId,
+            }
+        );
+        // console.log('updateAppointment response: ', response);
+        resObj.success = true;
+        resObj.message = 'Appointment updated successfully';
+        resObj.data = response?.event || response?.meta || response;
+        return resObj;
+    } catch (error) {
+        console.error('Error updating GHL appointment:', error?.message || error);
+        resObj = handleErorr(error);
+        return resObj;
+    }
+};
+export const ghlDeleteAppointment = async ({
+    tokens = TOKENS,
+    locationId = LOCATION_ID,
+    appointmentId = '',
+}) => {
+    let resObj = {
+        success: false,
+        warning: false,
+        message: '',
+        data: null,
+    }
+    try {
+        if (!tokens) {
+            resObj.message = 'GHL tokens not provided';
+            return resObj;
+        }
+        if (!locationId) {
+            resObj.message = 'Location ID not provided';
+            return resObj;
+        }
+        if (!appointmentId) {
+            resObj.message = 'Appointment ID not provided';
+            return resObj;
+        }
+        // await setGhlSession({ tokens, locationId });
+        // const response = await ghl.calendars.deleteEvent({
+        //     // locationId: locationId,
+        //     eventId: appointmentId,
+        // });
+
+
+        // https request as deleteEvent seems broken
+        const responseRaw = await fetch(`https://services.leadconnectorhq.com/calendars/events/${appointmentId}?locationId=${locationId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${tokens.access_token}`,
+                'Version': ghlConfig.version,
+                'Content-Type': 'application/json',
+            },
+        });
+        const response = await responseRaw.json();
+
+        // console.log('deleteAppointment response: ', response);
+        resObj.success = true;
+        resObj.message = 'Appointment deleted successfully';
+        resObj.data = response;
+        return resObj;
+    } catch (error) {
+        console.error('Error deleting GHL appointment:', error?.message || error);
+        resObj = handleErorr(error);
+        return resObj;
+    }
+};

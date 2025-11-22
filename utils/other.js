@@ -70,14 +70,71 @@ export const dashToKebab = (str) => {
     }
 }
 
-export const kebabToCamel = (str) => {
-    // example: 'pre-qualified' => 'preQualified'
+export const kebabToCamel = (input) => {
     try {
-        if (!str || typeof str !== 'string') return str;
-        return str.replace(/-([a-z])/g, (match, char) => char.toUpperCase());
+        if (!input) return input;
+
+        // Handle string input
+        if (typeof input === 'string') {
+            return input.replace(/-([a-z])/g, (match, char) => char.toUpperCase());
+        }
+
+        // Handle object input - recursively convert all keys from kebab to camelCase
+        if (typeof input === 'object') {
+            if (Array.isArray(input)) {
+                return input.map(item => kebabToCamel(item));
+            }
+
+            const result = {};
+            for (const [key, value] of Object.entries(input)) {
+                // Convert the key from kebab to camelCase
+                const camelKey = key.replace(/-([a-z])/g, (match, char) => char.toUpperCase());
+
+                // Recursively process nested objects/arrays
+                result[camelKey] = typeof value === 'object' && value !== null
+                    ? kebabToCamel(value)
+                    : value;
+            }
+            return result;
+        }
+
+        // Return as-is for other types
+        return input;
+
     } catch (error) {
         console.log('kebabToCamel error ==> ', error);
-        return str;
+        return input;
+    }
+}
+
+export const camelToSnake = (input) => {
+    try {
+        // Handle null or undefined
+        if (input == null) return input;
+        // Handle strings
+        if (typeof input === 'string') {
+            return input.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase();
+        }
+        // Handle arrays
+        if (Array.isArray(input)) {
+            return input.map(item => camelToSnake(item));
+        }
+        // Handle objects - only transform keys, keep values as-is
+        if (typeof input === 'object') {
+            const newObj = {};
+            for (const key in input) {
+                const snakeKey = key.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase();
+                // Don't transform the value, keep it as-is
+                newObj[snakeKey] = input[key];
+            }
+            return newObj;
+        }
+        // Return primitives as-is (numbers, booleans, etc.)
+        return input;
+    }
+    catch (error) {
+        console.error('camelToSnake error: ', error);
+        return input;
     }
 }
 
@@ -91,6 +148,7 @@ export const camelToDisplay = (str) => {
         return str;
     }
 }
+
 
 export const toDisplayStr = (value) => {
     try {
@@ -181,3 +239,52 @@ export const toNumLocalString = (num) => {
         return num;
     }
 }
+
+
+
+export const getIsoString = ({ date, newDate = false }) => {
+    try {
+        let input = date;
+        // Return current time
+        if (newDate) {
+            return new Date().toISOString();
+        }
+
+        // No input
+        if (!input && input !== 0) return null;
+
+        let dateValue = input;
+
+        // Extract from common object wrappers
+        if (typeof input === 'object' && input !== null && !(input instanceof Date)) {
+            dateValue = input.date || input.startDate || input.endDate || input.timestamp || input;
+        }
+
+        // Fast path: already a valid ISO string with timezone (ends with Z or +00:00)
+        if (
+            typeof dateValue === 'string' &&
+            /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(dateValue) && // has YYYY-MM-DDTHH:mm:ss
+            (dateValue.endsWith('Z') || /[+-]\d{2}:\d{2}$/.test(dateValue))   // has Z or offset
+        ) {
+            return dateValue; // Already perfect → skip parsing
+        }
+
+        // Handle Date objects
+        if (dateValue instanceof Date) {
+            return isNaN(dateValue.getTime()) ? null : dateValue.toISOString();
+        }
+
+        // Fallback: parse anything else
+        const parsed = new Date(dateValue);
+        if (isNaN(parsed.getTime())) {
+            console.warn('getIsoString: Invalid date →', input);
+            return null;
+        }
+
+        return parsed.toISOString();
+
+    } catch (error) {
+        console.warn('getIsoString error →', error, 'Input:', input);
+        return null;
+    }
+};
